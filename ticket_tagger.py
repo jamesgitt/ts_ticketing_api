@@ -59,18 +59,20 @@ model = custom_model()
 # =========================
 # Utility Functions
 # =========================
-def extract_json(text):
-    """
-    Extract the first JSON object from the LLM output.
-    Returns a dict if valid JSON, otherwise returns the string or None.
-    """
-    match = re.search(r'\{.*\}', text, re.DOTALL)
+def extract_json(llm_output):
+    # Find the JSON inside <Output>...</Output>
+    match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
     if match:
+        tags_json = match.group(1)
         try:
-            return json.loads(match.group())
-        except json.JSONDecodeError:
-            return match.group()  # Return the string if not valid JSON
-    return None
+            tags = json.loads(tags_json)
+            return tags
+        except Exception as e:
+            print("Failed to parse tags JSON:", e)
+            return None
+    else:
+        print("No <Output> JSON found in LLM output.")
+        return None
 
 # =========================
 # Main Tagging Function
