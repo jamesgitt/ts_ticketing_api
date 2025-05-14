@@ -146,29 +146,3 @@ def create_ticket(
     }
     append_ticket_to_csv(new_ticket)  # Store the ticket in the CSV file
     return new_ticket  # Return the created ticket
-
-# Endpoint to list all tickets
-@app.get("/tickets", response_model=List[TicketOut])
-def list_tickets():
-    return read_tickets_from_csv()  # Return all tickets from CSV
-
-# Endpoint to get a specific ticket by its ID
-@app.get("/tickets/{ticket_id}", response_model=TicketOut)
-def get_ticket(ticket_id: int):
-    tickets = read_tickets_from_csv()
-    for ticket in tickets:
-        if ticket["id"] == ticket_id:
-            return ticket  # Return the ticket if found
-    raise HTTPException(status_code=404, detail="Ticket not found")  # 404 if not found
-
-# Endpoint to "delete" a ticket by its ID (removal only from in-memory, not from CSV)
-@app.delete("/tickets/{ticket_id}", response_model=dict)
-def delete_ticket(ticket_id: int):
-    # Since the CSV is append-only, we cannot actually delete from it.
-    # We can only acknowledge the request.
-    tickets = read_tickets_from_csv()
-    for ticket in tickets:
-        if ticket["id"] == ticket_id:
-            # Deletion is not reflected in the CSV.
-            return {"message": "Ticket deleted (CSV is append-only, so ticket remains in log)"}
-    raise HTTPException(status_code=404, detail="Ticket not found")  # 404 if not found 
