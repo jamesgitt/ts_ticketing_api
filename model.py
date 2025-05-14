@@ -1,17 +1,15 @@
-# Import HuggingFacePipeline from LangChain and necessary classes from transformers
+# Imports for HuggingFacePipeline (LangChain) and HuggingFace Transformers
 from langchain_community.llms import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import os
-from dotenv import load_dotenv  # To load environment variables from .env file
+from dotenv import load_dotenv  # For loading environment variables
 
-# Load environment variables from .env file (e.g., API_KEY)
+# Load environment variables from .env file
 load_dotenv()
 
-
-
-# Path to the HuggingFace model repository
+# HuggingFace model repository path
 hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.5"
-# No API key credits limit (unlimited credits)
+# HuggingFace access token (if required)
 token = os.getenv("HF_TOKEN")
 
 def custom_model_pipeline(hf_model=hf_model_path):
@@ -20,13 +18,13 @@ def custom_model_pipeline(hf_model=hf_model_path):
     Loads the tokenizer and model from HuggingFace, sets up a text-generation pipeline,
     and wraps it for LangChain compatibility.
     """
-    # Load the tokenizer from the HuggingFace model hub
+    # Load the tokenizer from HuggingFace
     tokenizer = AutoTokenizer.from_pretrained(
         hf_model, 
         token=token
     )
     
-    # Load the causal language model from the HuggingFace model hub
+    # Load the causal language model from HuggingFace
     model = AutoModelForCausalLM.from_pretrained(
         hf_model,
         device_map='auto',
@@ -34,13 +32,13 @@ def custom_model_pipeline(hf_model=hf_model_path):
         low_cpu_mem_usage=False
     )
 
-    # Set up the HuggingFace text-generation pipeline
+    # Create a HuggingFace text-generation pipeline
     hf_pipe = pipeline(
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        max_new_tokens=2048,  # Maximum number of tokens to generate
-        do_sample=True,       # Enable sampling for generation
+        max_new_tokens=2048,  # Maximum tokens to generate
+        do_sample=True,       # Enable sampling
         temperature=0.1,      # Low temperature for more deterministic output
     )
     # Wrap the pipeline in a LangChain HuggingFacePipeline object
