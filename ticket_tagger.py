@@ -50,6 +50,8 @@ Example 2:
 {ticket_information}
 </Ticket_Information>
 <Output>
+
+</Output>
 """
 tokenizer = get_tokenizer()
 model = custom_model()
