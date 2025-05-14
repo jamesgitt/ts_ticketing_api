@@ -120,6 +120,7 @@ def get_ticket_tags(subject, description, email):
     tags = extract_json(result)
 
     # Validate and map LLM output keys to API output keys
+    print("LLM tags output:", tags)
     if tags is None or not isinstance(tags, dict):
         raise HTTPException(status_code=500, detail="Failed to extract tags from LLM output")
         
