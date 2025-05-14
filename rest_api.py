@@ -19,8 +19,8 @@ from ticket_tagger import get_ticket_tags  # LLM-based function for ticket taggi
 # Load environment variables from .env file (e.g., API_KEY)
 load_dotenv()
 
-# Initialize API key credits (simple in-memory store, 100 credits per key)
-API_KEY_CREDITS = {os.getenv("API_KEY"): 100}
+# No API key credits limit (unlimited credits)
+API_KEY = os.getenv("API_KEY")
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -110,12 +110,11 @@ class TicketOut(Ticket):
 # =========================
 
 # API key verification dependency
-# Checks if the provided API key exists and has credits left
-# Raises 401 error if invalid or out of credits
+# Checks if the provided API key exists (no credit check, unlimited usage)
+# Raises 401 error if invalid
 def verify_api_key(x_api_key: str = Header(None)):
-    credits = API_KEY_CREDITS.get(x_api_key, 0)
-    if credits <= 0:
-        raise HTTPException(status_code=401, detail="API key invalid or has no credits left")
+    if API_KEY is not None and x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="API key invalid")
     return x_api_key
 
 # =========================
@@ -132,7 +131,7 @@ def create_ticket(
     x_api_key: str = Depends(verify_api_key)
 ):
     ticket = Ticket(subject=subject, description=description, email=email)
-    API_KEY_CREDITS[x_api_key] -= 1  # Decrement API key credits
+    # No decrement of API key credits (unlimited)
 
     # Get next ticket ID based on CSV
     ticket_id = get_next_ticket_id()
