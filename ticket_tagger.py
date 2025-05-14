@@ -89,7 +89,7 @@ def get_ticket_tags(subject, description, email):
     prompt_str = template.format(ticket_information=ticket_information)
 
     # Tokenize the prompt string
-    inputs = tokenizer(prompt_str, return_tensors="pt")
+    inputs = tokenizer(prompt_str, return_tensors="pt").to("cuda")
 
     # Generate output from the model
     import torch
