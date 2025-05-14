@@ -2,20 +2,20 @@
 # Imports
 # =========================
 from model import custom_model, get_tokenizer
-from fastapi import HTTPException  # For API error handling
-import re  # For regex-based JSON extraction
-import json  # For JSON serialization/deserialization
+from fastapi import HTTPException  # For raising API errors
+import re  # For extracting JSON using regular expressions
+import json  # For working with JSON data
 
 # =========================
 # Prompt Template
 # =========================
-# This template instructs the LLM to tag tickets with the correct properties.
-# It provides context, strict output instructions, and a couple of worked examples.
+# Template for instructing the LLM to tag tickets with the correct properties.
+# Includes context, strict output instructions, and example inputs/outputs.
 template = """
 <Task_Context>
 You are an expert at tagging tickets with their correct properties.
 
-You will be given with:
+You will be given:
 Ticket information in JSON format (fields: subject, description, email).
 A list of the possible ticket property values in JSON format (fields: department, techgroup, category, subcategory, priority).
 
@@ -80,14 +80,14 @@ def get_ticket_tags(subject, description, email):
     Given ticket details, render the prompt,
     tokenize it, pass the tokenized input to the model, and return the predicted tags as a dict.
     """
-    # Prepare ticket information as JSON string
+    # Prepare ticket information as a JSON string
     ticket_information = json.dumps({
         "subject": subject,
         "description": description,
         "email": email
     })
 
-    # Render the prompt to a string (no vector DB, no RAG)
+    # Render the prompt string (no vector DB, no RAG)
     prompt_str = template.format(ticket_information=ticket_information)
 
     # Tokenize the prompt string
@@ -104,10 +104,10 @@ def get_ticket_tags(subject, description, email):
             temperature=0.1,
         )
 
-    # Decode the output tokens to string
+    # Decode the output tokens to a string
     output_text = tokenizer.decode(output[0], skip_special_tokens=True)
 
-    # Only keep the part of the output that comes after the prompt
+    # Extract only the part of the output that comes after the prompt
     if output_text.startswith(prompt_str):
         result = output_text[len(prompt_str):].strip()
     else:
