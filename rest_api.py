@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field  # Pydantic for data validation and serial
 from typing import List  # For type hinting lists
 from dotenv import load_dotenv  # To load environment variables from a .env file
 from typing import Optional
+import threading  # For thread-safe ticket ID assignment
 
 from ticket_tagger import get_ticket_tags  # Function for tagging tickets using the LLM model
 
@@ -32,6 +33,9 @@ CSV_HEADERS = [
     "id", "subject", "description", "email",
     "department", "techgroup", "category", "subcategory", "priority"
 ]
+
+# Lock for thread-safe ticket ID assignment and CSV writing
+ticket_id_lock = threading.Lock()
 
 # Ensure the CSV file exists and has headers
 def ensure_csv_headers():
@@ -80,10 +84,14 @@ def read_tickets_from_csv():
     return tickets
 
 def get_next_ticket_id():
-    tickets = read_tickets_from_csv()
-    if not tickets:
-        return 1
-    return max(ticket["id"] for ticket in tickets) + 1
+    """
+    Returns the next available ticket ID in a thread-safe manner.
+    """
+    with ticket_id_lock:
+        tickets = read_tickets_from_csv()
+        if not tickets:
+            return 1
+        return max(ticket["id"] for ticket in tickets) + 1
 
 # =========================
 # Pydantic Models
@@ -130,16 +138,17 @@ def create_ticket(
 ):
     ticket = Ticket(subject=subject, description=description, email=email)
 
-    # Get next ticket ID based on CSV
-    ticket_id = get_next_ticket_id()
+    # Ensure thread-safe ticket ID assignment and CSV writing
+    with ticket_id_lock:
+        ticket_id = get_next_ticket_id()
+        tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using the LLM model
+        new_ticket = {
+            "id": ticket_id,
+            "subject": ticket.subject,
+            "description": ticket.description,
+            "email": ticket.email,
+            **tags_dict
+        }
+        append_ticket_to_csv(new_ticket)  # Store the ticket in the CSV file
 
-    tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using the LLM model
-    new_ticket = {
-        "id": ticket_id,
-        "subject": ticket.subject,
-        "description": ticket.description,
-        "email": ticket.email,
-        **tags_dict
-    }
-    append_ticket_to_csv(new_ticket)  # Store the ticket in the CSV file
     return new_ticket  # Return the created ticket
