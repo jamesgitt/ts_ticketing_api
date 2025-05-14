@@ -1,16 +1,16 @@
 # =========================
 # Imports
 # =========================
-import os  # OS operations (env vars)
-import csv  # For reading/writing to CSV
+import os  # For environment variable operations
+import csv  # For reading and writing CSV files
 
-from fastapi import FastAPI, Depends, HTTPException, Header, Form  # FastAPI imports for API creation and dependencies
+from fastapi import FastAPI, Depends, HTTPException, Header, Form  # FastAPI for API creation and dependencies
 from pydantic import BaseModel, Field  # Pydantic for data validation and serialization
 from typing import List  # For type hinting lists
-from dotenv import load_dotenv  # To load environment variables from .env file
+from dotenv import load_dotenv  # To load environment variables from a .env file
 from typing import Optional
 
-from ticket_tagger import get_ticket_tags  # LLM-based function for ticket tagging using only the model (no RAG, no vector DB)
+from ticket_tagger import get_ticket_tags  # Function for tagging tickets using the LLM model
 
 # =========================
 # Environment and Globals
@@ -19,8 +19,7 @@ from ticket_tagger import get_ticket_tags  # LLM-based function for ticket taggi
 # Load environment variables from .env file (e.g., API_KEY)
 load_dotenv()
 
-# No API key credits limit (unlimited credits)
-API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY")  # API key for authentication
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -65,7 +64,7 @@ def read_tickets_from_csv():
     with open(CSV_FILE, mode="r", newline='', encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert id to int, keep others as str or None
+            # Convert id to int, keep others as str or None if empty
             ticket = {
                 "id": int(row["id"]),
                 "subject": row["subject"],
@@ -90,13 +89,13 @@ def get_next_ticket_id():
 # Pydantic Models
 # =========================
 
-# Pydantic model for incoming ticket data (request body)
+# Model for incoming ticket data (request body)
 class Ticket(BaseModel):
     subject: str = Field(..., description="The subject of the ticket")
     description: str = Field(..., description="A detailed description of the issue")
     email: str = Field(..., description="The email address of the requester")
 
-# Pydantic model for outgoing ticket data (response body, includes tags and ID)
+# Model for outgoing ticket data (response body, includes tags and ID)
 class TicketOut(Ticket):
     id: int
     department: Optional[str]
@@ -109,9 +108,8 @@ class TicketOut(Ticket):
 # API Key Verification
 # =========================
 
-# API key verification dependency
-# Checks if the provided API key exists (no credit check, unlimited usage)
-# Raises 401 error if invalid
+# Dependency to verify API key.
+# Raises 401 error if invalid.
 def verify_api_key(x_api_key: str = Header(None)):
     if API_KEY is not None and x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="API key invalid")
@@ -121,8 +119,8 @@ def verify_api_key(x_api_key: str = Header(None)):
 # API Endpoints
 # =========================
 
-# Endpoint to create a new ticket
-# Requires API key, tags ticket using only the LLM model, and returns the ticket with tags
+# Endpoint to create a new ticket.
+# Requires API key, tags ticket using the LLM model, and returns the ticket with tags.
 @app.post("/tickets", response_model=TicketOut)
 def create_ticket(
     subject: str = Form(..., description="Ticket subject"),
@@ -131,12 +129,11 @@ def create_ticket(
     x_api_key: str = Depends(verify_api_key)
 ):
     ticket = Ticket(subject=subject, description=description, email=email)
-    # No decrement of API key credits (unlimited)
 
     # Get next ticket ID based on CSV
     ticket_id = get_next_ticket_id()
 
-    tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using only the LLM model
+    tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using the LLM model
     new_ticket = {
         "id": ticket_id,
         "subject": ticket.subject,
