@@ -84,14 +84,10 @@ def read_tickets_from_csv():
     return tickets
 
 def get_next_ticket_id():
-    """
-    Returns the next available ticket ID in a thread-safe manner.
-    """
-    with ticket_id_lock:
-        tickets = read_tickets_from_csv()
-        if not tickets:
-            return 1
-        return max(ticket["id"] for ticket in tickets) + 1
+    tickets = read_tickets_from_csv()
+    if not tickets:
+        return 1
+    return max(ticket["id"] for ticket in tickets) + 1
 
 # =========================
 # Pydantic Models
