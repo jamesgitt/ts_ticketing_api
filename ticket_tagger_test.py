@@ -55,11 +55,10 @@ Example 2:
 <Ticket_Information>
 {ticket_information}
 </Ticket_Information>
-<Possible_Properties>
-{ticket_properties}
-</Possible_Properties>
 
 <Output>
+
+</Output>
 """
 tokenizer = get_tokenizer()
 model = custom_model()
