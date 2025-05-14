@@ -34,9 +34,6 @@ CSV_HEADERS = [
     "department", "techgroup", "category", "subcategory", "priority"
 ]
 
-# Lock for thread-safe ticket ID assignment and CSV writing
-ticket_id_lock = threading.Lock()
-
 # Ensure the CSV file exists and has headers
 def ensure_csv_headers():
     if not os.path.exists(CSV_FILE):
@@ -134,17 +131,16 @@ def create_ticket(
 ):
     ticket = Ticket(subject=subject, description=description, email=email)
 
-    # Ensure thread-safe ticket ID assignment and CSV writing
-    with ticket_id_lock:
-        ticket_id = get_next_ticket_id()
-        tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using the LLM model
-        new_ticket = {
-            "id": ticket_id,
-            "subject": ticket.subject,
-            "description": ticket.description,
-            "email": ticket.email,
-            **tags_dict
-        }
-        append_ticket_to_csv(new_ticket)  # Store the ticket in the CSV file
+    # Get next ticket ID based on CSV
+    ticket_id = get_next_ticket_id()
 
+    tags_dict = get_ticket_tags(ticket.subject, ticket.description, ticket.email)  # Tag ticket using the LLM model
+    new_ticket = {
+        "id": ticket_id,
+        "subject": ticket.subject,
+        "description": ticket.description,
+        "email": ticket.email,
+        **tags_dict
+    }
+    append_ticket_to_csv(new_ticket)  # Store the ticket in the CSV file
     return new_ticket  # Return the created ticket
