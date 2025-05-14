@@ -2,10 +2,17 @@
 from langchain_community.llms import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import os
+from dotenv import load_dotenv  # To load environment variables from .env file
+
+# Load environment variables from .env file (e.g., API_KEY)
+load_dotenv()
+
+
 
 # Path to the HuggingFace model repository
 hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.5"
-token = os.environ['HF_TOKEN']
+# No API key credits limit (unlimited credits)
+token = os.getenv("HF_TOKEN")
 
 def custom_model_pipeline(hf_model=hf_model_path):
     """
