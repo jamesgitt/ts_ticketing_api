@@ -15,7 +15,7 @@ template = """
 <Task_Context>
 You are an expert at tagging tickets with their correct properties.
 
-You will be given with:
+You will be given:
 Ticket information in JSON format (fields: subject, description, email).
 A list of the possible ticket property values in JSON format (fields: department, techgroup, category, subcategory, priority).
 
@@ -31,31 +31,24 @@ Return ONLY the JSON object for the ticket properties. Do NOT include any explan
 <Examples>
 Example 1:
 <Ticket_Information>
-{{"subject": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino", "description": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino", "email": "polvoron.james@kmc.solutions"}}
+{{"subject": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino", "description": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino", "email": "chanel.tolentino@company.com"}}
 </Ticket_Information>
-<Possible_Properties>
+<Possible_Output>
 {{"department": "Technology Services", "techgroup": "On-Site Support", "category": "Hardware", "subcategory": "Desktop/Laptop Problem", "priority": "P2 - General"}}
-</Possible_Properties>
-<Output>
-{{"department": "Technology Services", "techgroup": "On-Site Support", "category": "Hardware", "subcategory": "Desktop/Laptop Problem", "priority": "P2 - General"}}
-</Output>
+</Possible_Output>
 
 Example 2:
 <Ticket_Information>
-{{"subject": "PODIUM | VITRO LINK | Alert OSPF Neighbor is Down - VITRO MAKATI PODIUM-S2", "description": "PODIUM | VITRO LINK | Alert OSPF Neighbor is Down - VITRO MAKATI PODIUM-S2", "email": "jimmy.butter@kmc.solutions"}}
+{{"subject": "PODIUM | VITRO LINK | Alert OSPF Neighbor is Down - VITRO MAKATI PODIUM-S2", "description": "PODIUM | VITRO LINK | Alert OSPF Neighbor is Down - VITRO MAKATI PODIUM-S2", "email": "noc.alerts@company.com"}}
 </Ticket_Information>
-<Possible_Properties>
+<Possible_Output>
 {{"department": "Technology Services", "techgroup": "NOC", "category": "Outage", "subcategory": "ISP Outage", "priority": "P1 - Critical"}}
-</Possible_Properties>
-<Output>
-{{"department": "Technology Services", "techgroup": "NOC", "category": "Outage", "subcategory": "ISP Outage", "priority": "P1 - Critical"}}
-</Output>
+</Possible_Output>
 </Examples>
 
 <Ticket_Information>
 {ticket_information}
 </Ticket_Information>
-
 <Output>
 
 </Output>
@@ -66,18 +59,20 @@ model = custom_model()
 # =========================
 # Utility Functions
 # =========================
-def extract_json(text):
-    """
-    Extract the first JSON object from the LLM output.
-    Returns a dict if valid JSON, otherwise returns the string or None.
-    """
-    match = re.search(r'\{.*\}', text, re.DOTALL)
+def extract_json(llm_output):
+    # Find the JSON inside <Output>...</Output>
+    match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
     if match:
+        tags_json = match.group(1)
         try:
-            return json.loads(match.group())
-        except json.JSONDecodeError:
-            return match.group()  # Return the string if not valid JSON
-    return None
+            tags = json.loads(tags_json)
+            return tags
+        except Exception as e:
+            print("Failed to parse tags JSON:", e)
+            return None
+    else:
+        print("No <Output> JSON found in LLM output.")
+        return None
 
 # =========================
 # Main Tagging Function
