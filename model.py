@@ -56,6 +56,7 @@ def custom_model(hf_model=hf_model_path):
         token=token,
         low_cpu_mem_usage=False,
         # load in 8bit
+        load_in_8bit=True,
     )
     return model
 
