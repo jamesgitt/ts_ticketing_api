@@ -74,6 +74,7 @@ def extract_json(llm_output):
             print("Failed to parse tags JSON:", e)
             return None
     else:
+        print("Incorrect LLM Output: ", llm_output)
         print("No <Output_Properties> or <Output> JSON found in LLM output.")
         return None
 
