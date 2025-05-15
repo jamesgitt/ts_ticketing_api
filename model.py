@@ -8,7 +8,7 @@ from dotenv import load_dotenv  # For loading environment variables
 load_dotenv()
 
 # HuggingFace model repository path
-hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.5"
+hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.3"
 # HuggingFace access token (if required)
 token = os.getenv("HF_TOKEN")
 
@@ -29,7 +29,8 @@ def custom_model_pipeline(hf_model=hf_model_path):
         hf_model,
         device_map='auto',
         token=token,
-        low_cpu_mem_usage=False
+        low_cpu_mem_usage=False,
+        load_in_8bit=True
     )
 
     # Create a HuggingFace text-generation pipeline
@@ -53,7 +54,8 @@ def custom_model(hf_model=hf_model_path):
         hf_model,
         device_map='auto',
         token=token,
-        low_cpu_mem_usage=False
+        low_cpu_mem_usage=False,
+        # load in 8bit
     )
     return model
 
