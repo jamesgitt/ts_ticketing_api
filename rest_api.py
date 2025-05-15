@@ -60,24 +60,26 @@ def append_ticket_to_csv(ticket: dict):
 
 def read_tickets_from_csv():
     tickets = []
-    if not os.path.exists(CSV_FILE):
-        return tickets
-    with open(CSV_FILE, mode="r", newline='', encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+    with open("tickets_log.csv", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
         for row in reader:
-            # Convert id to int, keep others as str or None if empty
-            ticket = {
-                "id": int(row["id"]),
-                "subject": row["subject"],
-                "description": row["description"],
-                "email": row["email"],
-                "department": row["department"] if row["department"] else None,
-                "techgroup": row["techgroup"] if row["techgroup"] else None,
-                "category": row["category"] if row["category"] else None,
-                "subcategory": row["subcategory"] if row["subcategory"] else None,
-                "priority": row["priority"] if row["priority"] else None,
-            }
-            tickets.append(ticket)
+            # Defensive: skip rows missing any required field
+            if not row.get("id"):
+                continue
+            try:
+                tickets.append({
+                    "id": int(row["id"]),
+                    "subject": row.get("subject", ""),
+                    "description": row.get("description", ""),
+                    "email": row.get("email", ""),
+                    "department": row.get("department", ""),
+                    "techgroup": row.get("techgroup", ""),
+                    "category": row.get("category", ""),
+                    "subcategory": row.get("subcategory", ""),
+                    "priority": row.get("priority", ""),
+                })
+            except Exception as e:
+                print("Skipping malformed row:", row, "Error:", e)
     return tickets
 
 def get_next_ticket_id():
