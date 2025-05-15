@@ -48,8 +48,8 @@ def append_ticket_to_csv(ticket: dict):
         writer = csv.writer(f)
         writer.writerow([
             ticket.get("id"),
-            ticket.get("subject"),
-            ticket.get("description"),
+            f'"{ticket.get("subject")}"' if ticket.get("subject") is not None else '""',
+            f'"{ticket.get("description")}"' if ticket.get("description") is not None else '""',
             ticket.get("email"),
             ticket.get("department"),
             ticket.get("techgroup"),
