@@ -49,9 +49,9 @@ Example 2:
 <Ticket_Information>
 {ticket_information}
 </Ticket_Information>
-<Output>
+<Output_Properties>
 
-</Output>
+</Output_Properties>
 """
 tokenizer = get_tokenizer()
 model = custom_model()
@@ -60,8 +60,11 @@ model = custom_model()
 # Utility Functions
 # =========================
 def extract_json(llm_output):
-    # Find the JSON inside <Output>...</Output>
-    match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
+    # Try to find JSON inside <Output_Properties>...</Output_Properties>
+    match = re.search(r"<Output_Properties>\s*({.*?})\s*</Output_Properties>", llm_output, re.DOTALL)
+    if not match:
+        # Fallback: Try to find JSON inside <Output>...</Output>
+        match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
     if match:
         tags_json = match.group(1)
         try:
@@ -71,7 +74,7 @@ def extract_json(llm_output):
             print("Failed to parse tags JSON:", e)
             return None
     else:
-        print("No <Output> JSON found in LLM output.")
+        print("No <Output_Properties> or <Output> JSON found in LLM output.")
         return None
 
 # =========================
@@ -94,6 +97,7 @@ def get_ticket_tags(subject, description, email):
 
     # Tokenize the prompt string
     inputs = tokenizer(prompt_str, return_tensors="pt").to("cuda")
+    stop_token = tokenizer.encode("</Output_Properties>", add_special_tokens=False)[-1]
 
     # Generate output from the model
     import torch
@@ -104,6 +108,7 @@ def get_ticket_tags(subject, description, email):
             max_new_tokens=512,
             do_sample=True,
             temperature=0.1,
+            eos_token_id=stop_token,
         )
 
     # Decode the output tokens to a string
