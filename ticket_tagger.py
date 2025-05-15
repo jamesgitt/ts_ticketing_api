@@ -50,8 +50,6 @@ Example 2:
 {ticket_information}
 </Ticket_Information>
 <Output_Properties>
-
-</Output_Properties>
 """
 tokenizer = get_tokenizer()
 model = custom_model()
@@ -104,9 +102,7 @@ def get_ticket_tags(subject, description, email):
         output = model.generate(
             input_ids=inputs["input_ids"],
             attention_mask=inputs.get("attention_mask", None),
-            max_new_tokens=512,
-            do_sample=True,
-            temperature=0.1,
+            max_new_tokens=2048,
         )
 
     # Decode the output tokens to a string
