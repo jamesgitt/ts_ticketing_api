@@ -74,7 +74,6 @@ def extract_json(llm_output):
             print("Failed to parse tags JSON:", e)
             return None
     else:
-        print("Incorrect LLM Output: ", llm_output)
         print("No <Output_Properties> or <Output> JSON found in LLM output.")
         return None
 
@@ -112,6 +111,8 @@ def get_ticket_tags(subject, description, email):
 
     # Decode the output tokens to a string
     output_text = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    print("Raw Output: ", output_text)
 
     # Extract only the part of the output that comes after the prompt
     if output_text.startswith(prompt_str):
