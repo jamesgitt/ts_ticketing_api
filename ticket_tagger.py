@@ -63,6 +63,9 @@ def extract_json(llm_output):
     if not match:
         # Fallback: Try to find JSON inside <Output>...</Output>
         match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
+    if not match:
+        # Fallback: Try to find any JSON object in the output
+        match = re.search(r"({.*?})", llm_output, re.DOTALL)
     if match:
         tags_json = match.group(1)
         try:
@@ -70,9 +73,10 @@ def extract_json(llm_output):
             return tags
         except Exception as e:
             print("Failed to parse tags JSON:", e)
+            print("Raw JSON string:", tags_json)
             return None
     else:
-        print("No <Output_Properties> or <Output> JSON found in LLM output.")
+        print("No JSON found in LLM output.")
         return None
 
 # =========================
