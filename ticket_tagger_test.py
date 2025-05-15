@@ -97,7 +97,6 @@ def get_ticket_tags(subject, description, email):
 
     # Tokenize the prompt string
     inputs = tokenizer(prompt_str, return_tensors="pt").to("cuda")
-    stop_token = tokenizer.encode("</Output_Properties>", add_special_tokens=False)[-1]
 
     # Generate output from the model
     import torch
@@ -108,7 +107,6 @@ def get_ticket_tags(subject, description, email):
             max_new_tokens=512,
             do_sample=True,
             temperature=0.1,
-            eos_token_id=stop_token,
         )
 
     # Decode the output tokens to a string
