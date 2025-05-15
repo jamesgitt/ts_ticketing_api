@@ -60,8 +60,11 @@ model = custom_model()
 # Utility Functions
 # =========================
 def extract_json(llm_output):
-    # Find the JSON inside <Output>...</Output>
-    match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
+    # Try to find JSON inside <Output_Properties>...</Output_Properties>
+    match = re.search(r"<Output_Properties>\s*({.*?})\s*</Output_Properties>", llm_output, re.DOTALL)
+    if not match:
+        # Fallback: Try to find JSON inside <Output>...</Output>
+        match = re.search(r"<Output>\s*({.*?})\s*</Output>", llm_output, re.DOTALL)
     if match:
         tags_json = match.group(1)
         try:
@@ -71,7 +74,7 @@ def extract_json(llm_output):
             print("Failed to parse tags JSON:", e)
             return None
     else:
-        print("No <Output> JSON found in LLM output.")
+        print("No <Output_Properties> or <Output> JSON found in LLM output.")
         return None
 
 # =========================
