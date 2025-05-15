@@ -49,9 +49,9 @@ Example 2:
 <Ticket_Information>
 {ticket_information}
 </Ticket_Information>
-<Output>
+<Output_Properties>
 
-</Output>
+</Output_Properties>
 """
 tokenizer = get_tokenizer()
 model = custom_model()
