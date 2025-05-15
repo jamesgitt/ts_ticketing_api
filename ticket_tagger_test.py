@@ -5,7 +5,7 @@ from model import custom_model, get_tokenizer
 from fastapi import HTTPException  # For raising API errors
 import re  # For extracting JSON using regular expressions
 import json  # For working with JSON data
-
+import torch 
 # =========================
 # Prompt Template
 # =========================
@@ -53,6 +53,9 @@ Example 2:
 
 </Output_Properties>
 """
+
+torch.cuda.empty_cache()
+
 tokenizer = get_tokenizer()
 model = custom_model()
 
@@ -98,8 +101,8 @@ def get_ticket_tags(subject, description, email):
     # Tokenize the prompt string
     inputs = tokenizer(prompt_str, return_tensors="pt").to("cuda")
 
-    # Generate output from the model
-    import torch
+    torch.cuda.empty_cache()
+
     with torch.no_grad():
         output = model.generate(
             input_ids=inputs["input_ids"],
@@ -140,8 +143,8 @@ def get_ticket_tags(subject, description, email):
 # Example usage for testing the prompt and printing the result
 if __name__ == "__main__":
     # Example ticket details
-    subject = "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino"
-    description = "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino"
+    subject = "ONE AYALA MALL (AVEPOINT): Access Badge Concern - April 22  2025"
+    description = "ONE AYALA MALL (AVEPOINT): Access Badge Concern - April 22  2025 From: Joshua Tolentino Sent: Wednesday  April 23  2025 1:28 PMTo: KMCS One Ayala Mall Cc: Neil Cadigoy ; KMC Service Desk Subject: Re: [Access Badge Concern] - April 22  2025Hi @KMCS One Ayala Mall Kindly requesting your assistance regarding Neil'saccess &amp; . Upon trying thebadgedoesn't work on our office doors. Most of us doesn't have an access in our boardroom(H and I- Corfu and Elba).Neilrose Cadigoy2096202 - 0002499171Thank you and kind regards Romeo Joshua Tolentino[He/Him]Operations CoordinatorP: +63 949-755-6673 / +63 917-125-1569 | Joshua.Tolentino@avepoint.comFollow AvePoint on Xand LinkedIn| Subscribe to our blogIs your data ready for AI? Prepare your data for AI success with our AI &amp; Information Management Report.Please note that I respect and understand that our schedules may not always align due to different time zones. There's no need to respond during your off-business hours  over the weekends  or when you're on your personal time off. Have a safe and fantastic day!From: Joshua TolentinoSent: Tuesday  22 April 2025 4:58 pmTo: KMCS One Ayala Mall Cc: Neil Cadigoy Subject: [Access Badge Concern] - April 22  2025Hi @KMCS One Ayala Mall Kindly requesting your assistance regarding Neil's access. Upon trying the badge doesn't work on our office doors.Neilrose Cadigoy2096202 - 0002499171Thank you and kind regards Romeo Joshua Tolentino[He/Him]Operations CoordinatorP: +63 949-755-6673 / +63 917-125-1569 | Joshua.Tolentino@avepoint.comFollow AvePoint on Xand LinkedIn| Subscribe to our blogIs your data ready for AI? Prepare your data for AI success with our AI &amp; Information Management Report.Please note that I respect and understand that our schedules may not always align due to different time zones. There's no need to respond during your off-business hours  over the weekends  or when you're on your personal time off. Have a safe and fantastic day!"
     email = "polvoron.james@kmc.solutions"
     # Call the function and print the result
     result = get_ticket_tags(subject, description, email)
