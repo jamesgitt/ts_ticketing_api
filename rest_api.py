@@ -3,6 +3,8 @@
 # =========================
 import os  # For environment variable operations
 import csv  # For reading and writing CSV files
+import hmac  # For secure API key comparison
+import secrets  # For secure random operations
 
 from fastapi import FastAPI, Depends, HTTPException, Header, Form  # FastAPI for API creation and dependencies
 from pydantic import BaseModel, Field  # Pydantic for data validation and serialization
@@ -21,6 +23,9 @@ from ticket_tagger import get_ticket_tags  # Function for tagging tickets using 
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")  # API key for authentication
+
+if API_KEY is not None:
+    API_KEY = API_KEY.strip()
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -113,8 +118,13 @@ class TicketOut(Ticket):
 
 # Dependency to verify API key.
 # Raises 401 error if invalid.
-def verify_api_key(x_api_key: str = Header(None)):
-    if API_KEY is not None and x_api_key != API_KEY:
+def verify_api_key(x_api_key: str = Header(None, convert_underscores=False)):
+    if API_KEY is None:
+        raise HTTPException(status_code=500, detail="API key not configured")
+    if x_api_key is None:
+        raise HTTPException(status_code=401, detail="API key missing")
+    # Use secrets.compare_digest for constant-time comparison
+    if not secrets.compare_digest(str(x_api_key).strip(), API_KEY):
         raise HTTPException(status_code=401, detail="API key invalid")
     return x_api_key
 
