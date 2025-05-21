@@ -5,6 +5,7 @@ from model import custom_model, get_tokenizer
 from fastapi import HTTPException  # For raising API errors
 import re  # For extracting JSON using regular expressions
 import json  # For working with JSON data
+import torch
 
 # =========================
 # Prompt Template
@@ -101,7 +102,6 @@ def get_ticket_tags(subject, description, email):
     inputs = tokenizer(prompt_str, return_tensors="pt").to("cuda")
 
     # Generate output from the model
-    import torch
     with torch.no_grad():
         output = model.generate(
             input_ids=inputs["input_ids"],
