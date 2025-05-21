@@ -24,9 +24,6 @@ load_dotenv()
 
 API_KEY = os.getenv("API_KEY")  # API key for authentication
 
-if API_KEY is not None:
-    API_KEY = API_KEY.strip()
-
 # Create FastAPI app instance
 app = FastAPI()
 
