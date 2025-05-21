@@ -8,3 +8,7 @@ id,subject,description,email,department,techgroup,category,subcategory,priority
 7,"""Requesting for a new laptop""","""Hello Procurement Team! We would like to seek your help in requesting for a new laptop for our new intern. Thanks""",chrisdan.evalla@kmc.solutions,Technology Services,TS Procurement,Procurement,Purchase Request,P4 - Project
 8,"""Hey""","""Hi""",hey@hello.com,Technology Services,Voice and Email,Email,Phishing Incident,P1 - Critical
 9,"""Hi""","""hello""",hey@hello.com,Technology Services,Voice and Email,Email,Phishing Incident,P1 - Critical
+10,"""string""","""string""",string@string,Technology Services,Service Desk,General Assistance,General Inquiry,P3 - Planned
+11,"""KMCS Wifi Issue""","""I can't connect to KMCS Wifi""",chrisdan.evalla@kmc.solutions,Technology Services,Service Desk,Network,Connection Issue,P2 - General
+12,"""string""","""string""",string,Technology Services,Service Desk,General Assistance,General Inquiry,P3 - Planned
+13,"""string""","""string""",string@string12,Technology Services,Service Desk,General Assistance,General Inquiry,P3 - Planned
