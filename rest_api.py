@@ -139,7 +139,7 @@ def create_ticket(
     subject: str = Form(..., description="Ticket subject"),
     description: str = Form(..., description="Ticket description"),
     email: str = Form(..., description="Ticket email"),
-    x_api_key: str = Depends(verify_api_key)
+    api_key: str = Depends(verify_api_key)
 ):
     ticket = Ticket(subject=subject, description=description, email=email)
 
