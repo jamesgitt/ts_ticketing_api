@@ -117,10 +117,9 @@ class TicketOut(Ticket):
 # Raises 401 error if invalid.
 def verify_api_key(
     x_api_key: str = Header(None, convert_underscores=True),
-    x_api_key_alt: str = Header(None, alias="x_api_key")
 ):
     # Accept either header
-    key = x_api_key or x_api_key_alt
+    key = x_api_key
     if API_KEY is None:
         raise HTTPException(status_code=500, detail="API key not configured")
     if key is None:
