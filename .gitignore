@@ -2,3 +2,4 @@ llmvenv/
 __pycache__/
 *.pyc
 .env
+.env.save
