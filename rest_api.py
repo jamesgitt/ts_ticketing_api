@@ -116,7 +116,7 @@ class TicketOut(Ticket):
 # Dependency to verify API key.
 # Raises 401 error if invalid.
 def verify_api_key(
-    x_api_key: str = Header(None, convert_underscores=False),
+    x_api_key: str = Header(None, convert_underscores=True),
     x_api_key_alt: str = Header(None, alias="x_api_key")
 ):
     # Accept either header
