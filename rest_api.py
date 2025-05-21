@@ -115,15 +115,19 @@ class TicketOut(Ticket):
 
 # Dependency to verify API key.
 # Raises 401 error if invalid.
-def verify_api_key(x_api_key: str = Header(None, convert_underscores=False)):
+def verify_api_key(
+    x_api_key: str = Header(None, convert_underscores=False),
+    x_api_key_alt: str = Header(None, alias="x_api_key")
+):
+    # Accept either header
+    key = x_api_key or x_api_key_alt
     if API_KEY is None:
         raise HTTPException(status_code=500, detail="API key not configured")
-    if x_api_key is None:
+    if key is None:
         raise HTTPException(status_code=401, detail="API key missing")
-    # Use secrets.compare_digest for constant-time comparison
-    if not secrets.compare_digest(str(x_api_key).strip(), API_KEY):
+    if not secrets.compare_digest(str(key).strip(), API_KEY):
         raise HTTPException(status_code=401, detail="API key invalid")
-    return x_api_key
+    return key
 
 # =========================
 # API Endpoints
