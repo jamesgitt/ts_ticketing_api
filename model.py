@@ -6,7 +6,7 @@ from dotenv import load_dotenv  # For loading environment variables
 load_dotenv()
 
 # HuggingFace model repository path
-hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.3"
+hf_model_path = "kmcs-casulit/ts_ticket_v1.0.0.9"
 # HuggingFace access token (if required)
 token = os.getenv("HF_TOKEN")
 
