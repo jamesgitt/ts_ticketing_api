@@ -1,88 +1,83 @@
-Certainly! Here’s a professional and comprehensive `README.md` for your ticket tagging project, based on the code and data you’ve provided:
+Thank you for clarifying! Here’s a focused README section that describes the **process and workflow of the `ts_ticketing_api`** as an API service for ticket property tagging, **not the evaluation/testing notebook**.
 
 ---
 
-# OSP AUTO TICKET TAGGING MODEL
+# TS Ticketing API — Process Overview
 
-This project leverages a Hugging Face transformer model to automatically assign ticket properties (department, techgroup, category, subcategory, priority) to Technology Services support tickets. It is designed for robust, row-by-row evaluation of model performance on real-world ticket data.
+The `ts_ticketing_api` is a RESTful API service that uses a fine-tuned Hugging Face transformer model to automatically tag IT support tickets with the correct properties. Below is a step-by-step outline of how the API works:
 
-## Features
+---
 
-- **Automated Ticket Tagging:** Uses a fine-tuned language model to predict ticket properties from subject, description, and email.
-- **Evaluation Metrics:** Calculates F1, precision, recall, and accuracy for each property.
-- **Robust Handling:** Ensures all required fields are present in the output, even if the model response is incomplete.
-- **CSV Integration:** Reads and writes ticket data and results in CSV format for easy analysis.
+## 1. **API Input**
 
-## Project Structure
+- **Endpoint:** The API exposes an endpoint (e.g., `/tag_ticket`) that accepts HTTP POST requests.
+- **Request Body:** The client sends a JSON payload containing ticket information:
+  ```json
+  {
+    "subject": "Ticket subject here",
+    "description": "Detailed ticket description here",
+    "email": "user@example.com"
+  }
+  ```
 
-```
-ts_ticketing_api/
-├── tickets_log.csv                # Example ticket data (input)
-├── ts_ticketing_test_results_1000.csv  # Test set for evaluation (input)
-├── ts_ticketing_test_results_TEST_1000.csv # Output with model predictions and metrics
-├── ... (your scripts and notebooks)
-```
+---
 
-## Requirements
+## 2. **Model Inference**
 
-- Python 3.8+
-- [Hugging Face Transformers](https://huggingface.co/transformers/)
-- [Pandas](https://pandas.pydata.org/)
-- [Scikit-learn](https://scikit-learn.org/)
-- CUDA-enabled GPU (for efficient inference)
-- Google Colab (optional, for easy cloud execution)
+- **Prompt Construction:** The API constructs a prompt for the model, embedding the ticket information in a predefined template with clear instructions and examples.
+- **Tokenization:** The prompt is tokenized using the model’s tokenizer.
+- **Model Call:** The tokenized prompt is passed to the fine-tuned transformer model (e.g., `kmcs-casulit/ts_ticket_v1.0.0.9`), which generates a response containing the predicted ticket properties.
 
-## Setup
+---
 
-1. **Clone the repository** and navigate to the project directory.
+## 3. **Post-processing**
 
-2. **Install dependencies:**
-   ```bash
-   pip install pandas scikit-learn transformers
-   ```
+- **Parsing:** The model’s output is parsed as JSON.
+- **Validation:** The API ensures all required ticket property fields are present in the response:
+  - `department`
+  - `techgroup`
+  - `category`
+  - `subcategory`
+  - `priority`
+- **Fallback:** If the model output is missing any fields or is invalid, those fields are set to `null` to guarantee a complete response.
 
-3. **Prepare your Hugging Face token:**
-   - Store your token securely (e.g., in Google Colab: `from google.colab import userdata`).
+---
 
-4. **Download or prepare your test CSV:**
-   - Place your test data in `ts_ticketing_test_results_1000.csv`.
+## 4. **API Output**
 
-## Usage
+- **Response:** The API returns a JSON object with the predicted ticket properties:
+  ```json
+  {
+    "department": "Technology Services",
+    "techgroup": "Service Desk",
+    "category": "General Assistance",
+    "subcategory": "General Inquiry",
+    "priority": "P3 - Planned"
+  }
+  ```
+- **Error Handling:** If the input is invalid or the model fails, the API returns an appropriate error message or a response with all fields set to `null`.
 
-### Inference and Evaluation
+---
 
-The main script processes each ticket row, generates model predictions, and evaluates them:
+## **Summary Table**
 
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import pandas as pd
-import json
-from sklearn.metrics import f1_score, precision_score, recall_score
+| Step            | Description                                                                 |
+|-----------------|-----------------------------------------------------------------------------|
+| Input           | JSON with ticket info (`subject`, `description`, `email`)                   |
+| Prompting       | Construct prompt for the model                                              |
+| Inference       | Model generates ticket property JSON                                        |
+| Post-processing | Ensure all required fields are present; fill missing with `null`            |
+| Output          | Return JSON with predicted ticket properties                                |
 
-# ... (see process_row function in previous messages)
+---
 
-# Load the CSV file
-test_df = pd.read_csv("ts_ticketing_test_results_1000.csv")
+## **Example Usage**
 
-# Apply the process_row function to each row
-test_df = test_df.apply(process_row, axis=1)
+**Request:**
+```http
+POST /tag_ticket
+Content-Type: application/json
 
-# Save the updated CSV file
-test_df.to_csv("ts_ticketing_test_results_TEST_1000.csv", index=False)
-```
-
-### Model Prompt
-
-The model is prompted with a detailed instruction and examples to ensure consistent, JSON-only output. If the model output is incomplete, missing fields are filled with `null`.
-
-### Handling Empty or Invalid Model Output
-
-The script ensures that all required ticket property fields are present in the output, defaulting to `null` if the model does not provide them. This prevents errors during evaluation.
-
-## Example Input/Output
-
-**Input Ticket:**
-```json
 {
   "subject": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino",
   "description": "UPT20 (SO-NickScali) : PC assistance Chanel Tolentino",
@@ -90,7 +85,7 @@ The script ensures that all required ticket property fields are present in the o
 }
 ```
 
-**Model Output:**
+**Response:**
 ```json
 {
   "department": "Technology Services",
@@ -101,8 +96,30 @@ The script ensures that all required ticket property fields are present in the o
 }
 ```
 
-## Customization
+---
+```
+**Current accuracies:**
 
-- **Model:** Change the `hf_model` variable to use a different Hugging Face model.
-- **Prompt:** Edit the `ticket_prompt` string to adjust instructions or examples.
-- **Metrics:** Extend or modify the `calculate_metric_for_keys` function for additional evaluation.
+------------------------------------------------------------
+Accuracy Percentage: 82.00%
+------------------------------------------------------------
+F1 Percentage for Department: 100.00%
+F1 Percentage for Techgroup: 93.00%
+F1 Percentage for Category: 93.00%
+F1 Percentage for Subcategory: 85.00%
+F1 Percentage for Priority: 94.00%
+------------------------------------------------------------
+Precision Percentage for Department: 100.00%
+Precision Percentage for Techgroup: 93.00%
+Precision Percentage for Category: 93.00%
+Precision Percentage for Subcategory: 85.00%
+Precision Percentage for Priority: 94.00%
+------------------------------------------------------------
+Recall Percentage for Department for: 100.00%
+Recall Percentage for Techgroup for: 93.00%
+Recall Percentage for Category for: 93.00%
+Recall Percentage for Subcategory for: 85.00%
+Recall Percentage for Priority for: 94.00%
+------------------------------------------------------------
+
+```
