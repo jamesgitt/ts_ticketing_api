@@ -122,3 +122,16 @@ Recall Percentage for Priority for: 94.00%
 ------------------------------------------------------------
 
 ```
+
+
+**For finetuning, data synthesizing, and testing**
+
+```
+FINETUNING Notebook:  https://colab.research.google.com/drive/14s635Xyq7LO_9KoeDN0zsruna1ypJiJP?authuser=1#scrollTo=AqLSD16PPwOK
+ - Required to upload a dataset on local files
+DATA SYNTHESIZING Notebook: https://colab.research.google.com/drive/1CWVzn7sfE7JJHi3SoknNats5q42ZF2LX?authuser=1#scrollTo=uupGoD9Rovw_ 
+ - Required to upload reference dataset on local files
+TESTING Notebook: https://colab.research.google.com/drive/1S281827qCdv_R_peihlt1EVlsYARXJh_?authuser=1#scrollTo=uIU43E1DgiGJ
+ - Required to upload dataset for RAG
+ - Required to upload csv with test cases per row for both RAG and non-RAG testing
+```
