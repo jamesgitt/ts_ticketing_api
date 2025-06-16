@@ -1,4 +1,3 @@
-Thank you for clarifying! Here’s a focused README section that describes the **process and workflow of the `ts_ticketing_api`** as an API service for ticket property tagging, **not the evaluation/testing notebook**.
 
 ---
 
